@@ -3,11 +3,11 @@
 var Worker = require('./Worker');
 var Deferred = require('./lib/Deferred');
 
-function WorkerPool(numWorkers, workerPath, workerArgs, options) {
+function WorkerPool(numWorkers, runCmd, workerPath, options) {
   options = options || {};
 
   this._numWorkers = numWorkers;
-  this._workerArgs = workerArgs;
+  this._runCmd = runCmd;
   this._workerPath = workerPath;
   this._opts = options;
 
@@ -26,7 +26,7 @@ function WorkerPool(numWorkers, workerPath, workerArgs, options) {
 
 WorkerPool.prototype._bootNewWorker = function() {
   var workerID = this._allWorkers.length;
-  var worker = new Worker(this._workerPath, this._workerArgs, {
+  var worker = new Worker(this._runCmd, this._workerPath, {
     initData: this._opts.initData,
     printChildResponses: !!this._opts.printChildResponses,
     workerName: workerID

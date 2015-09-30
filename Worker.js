@@ -15,10 +15,11 @@ function _middleTruncate(str, cutoffLength) {
   return str;
 }
 
-function Worker(workerPath, workerArgs, options) {
+function Worker(runCmd, workerPath, options) {
   options = options || {}
+  var runArgs = [workerPath];
 
-  var child = child_process.spawn(workerPath, workerArgs);
+  var child = child_process.spawn(runCmd, runArgs);
   child.on('exit', this._onChildExit.bind(this));
   child.stderr.setEncoding('utf8');
   child.stderr.on('data', this._onStderr.bind(this));
@@ -31,8 +32,8 @@ function Worker(workerPath, workerArgs, options) {
   this._pendingResponseDeferred = null;
   this._stderrData = '';
   this._streamParser = new JSONStreamParser();
-  this._workerArgs = workerArgs;
   this._workerPath = workerPath;
+  this._runCmd = runCmd;
 
   // Send init data to the child first thing
   this._initDeferred = Deferred();
@@ -93,7 +94,7 @@ Worker.prototype._onChildExit = function(code, signalStr) {
   }
 
   // Try re-booting this worker
-  Worker.call(this, this._workerPath, this._workerArgs, this._opts);
+  Worker.call(this, this._runCmd, this._workerPath, this._opts);
 };
 
 Worker.prototype._onStderr = function(data) {
